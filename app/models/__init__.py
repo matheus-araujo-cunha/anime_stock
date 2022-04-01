@@ -1,7 +1,9 @@
-import psycopg2
 from os import getenv
+
+import psycopg2
 from dotenv import load_dotenv
-from psycopg2 import sql, extras
+from psycopg2 import extras, sql
+
 from app.exceptions import AnimeNotFound
 
 load_dotenv()
@@ -16,14 +18,6 @@ configs = {
 
 
 class DatabaseConnector:
-    DEC2FLOAT = psycopg2.extensions.new_type(
-        psycopg2.extensions.DECIMAL.values,
-        "DEC2FLOAT",
-        lambda value, curs: float(value) if value is not None else None,
-    )
-
-    psycopg2.extensions.register_type(DEC2FLOAT)
-
     @classmethod
     def init_connection(cls):
         cls.conn = psycopg2.connect(**configs, cursor_factory=extras.RealDictCursor)
@@ -66,6 +60,7 @@ class DatabaseConnector:
 
         cls.cur.execute(query)
         all_items = cls.cur.fetchall()
+
         cls.close_connection(commit=False)
 
         return all_items

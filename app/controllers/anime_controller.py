@@ -1,9 +1,11 @@
 from http import HTTPStatus
-from flask import request, jsonify
-from app.models.anime_model import Anime
-from app.exceptions import AnimeNotFound, AnimeInvalidKeysError
+
+from flask import jsonify, request
 from psycopg2.errors import UndefinedTable, UniqueViolation
-from app.services import validate_keys
+
+from app.exceptions import AnimeInvalidKeysError, AnimeNotFound
+from app.models.anime_model import Anime
+from app.services import validate_keys, format_date
 
 
 def retrieve():
@@ -11,6 +13,10 @@ def retrieve():
         list_animes = Anime.get_all()
     except UndefinedTable:
         return {"data": []}
+
+    for anime in list_animes:
+        anime.update({"released_date": format_date(anime["released_date"])})
+
     return {"data": list_animes}, HTTPStatus.OK
 
 
@@ -19,6 +25,7 @@ def get_by_id(anime_id: int):
         anime = Anime.get_anime_by_id(anime_id)
     except AnimeNotFound or UndefinedTable as error:
         return {"error": error.message}, error.status_code
+    anime.update({"released_date": format_date(anime["released_date"])})
     return {"data": [anime]}, HTTPStatus.OK
 
 
@@ -39,6 +46,9 @@ def register():
         return {
             "error": f"Anime {anime.anime} is already exists"
         }, HTTPStatus.UNPROCESSABLE_ENTITY
+    registered_anime.update(
+        {"released_date": format_date(registered_anime["released_date"])}
+    )
     return jsonify(registered_anime), HTTPStatus.CREATED
 
 
@@ -58,6 +68,9 @@ def update(anime_id: int):
         return {
             "error": f"Anime {data['anime']} is already exists"
         }, HTTPStatus.UNPROCESSABLE_ENTITY
+    updated_anime.update(
+        {"released_date": format_date(updated_anime["released_date"])}
+    )
     return {"data": updated_anime}, HTTPStatus.OK
 
 

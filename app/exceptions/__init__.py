@@ -1,1 +1,1 @@
-from .anime_exc import AnimeNotFound, AnimeInvalidKeysError
+from .anime_exc import AnimeInvalidKeysError, AnimeNotFound

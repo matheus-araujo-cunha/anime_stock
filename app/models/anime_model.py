@@ -1,6 +1,7 @@
 from psycopg2 import sql
-from app.models import DatabaseConnector
+
 from app.exceptions import AnimeNotFound
+from app.models import DatabaseConnector
 from app.services import validate_keys
 from app.services.anime_service import validate_keys
 
