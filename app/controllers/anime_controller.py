@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import jsonify, request
 from psycopg2.errors import UndefinedTable, UniqueViolation
 
-from app.exceptions import AnimeInvalidKeysError, AnimeNotFound
+from app.exceptions import AnimeInvalidKeysError, AnimeNotFound,MissingKeysError
 from app.models.anime_model import Anime
 from app.services import validate_keys, format_date
 
@@ -42,6 +42,11 @@ def register():
             "available_keys": error.available_keys,
             "wrong_keys_sended": error.wrong_keys_sended,
         }, error.status_code
+    except MissingKeysError as error:
+        return {
+            "avalaible_keys": error.correct_keys,
+            "wrong_keys_sended":error.missing_keys
+        }
     except UniqueViolation as error:
         return {
             "error": f"Anime {anime.anime} is already exists"

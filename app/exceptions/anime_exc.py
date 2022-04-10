@@ -12,3 +12,9 @@ class AnimeInvalidKeysError(Exception):
         self.available_keys = list(available_keys)
         self.wrong_keys_sended = wrong_keys_sended
         self.status_code = HTTPStatus.UNPROCESSABLE_ENTITY
+
+class MissingKeysError(Exception):
+    def __init__(self,missing_keys,correct_keys):
+        self.missing_keys = missing_keys
+        self.correct_keys = correct_keys
+        self.status_code = HTTPStatus.BAD_REQUEST

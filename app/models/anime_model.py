@@ -3,7 +3,7 @@ from psycopg2 import sql
 from app.exceptions import AnimeNotFound
 from app.models import DatabaseConnector
 from app.services import validate_keys
-from app.services.anime_service import validate_keys
+from app.services.anime_service import validate_keys,validate_missing_keys
 
 
 class Anime(DatabaseConnector):
@@ -12,10 +12,11 @@ class Anime(DatabaseConnector):
 
     def __init__(self, **kwargs) -> None:
 
+        validate_keys(self.FIELDNAMES, list(kwargs.keys()))
+        validate_missing_keys(self.FIELDNAMES, list(kwargs.keys()))
         self.anime = kwargs["anime"].title()
         self.released_date = kwargs["released_date"]
         self.seasons = kwargs["seasons"]
-        validate_keys(self.__dict__.keys(), kwargs.keys())
 
     @classmethod
     def get_all(cls):
@@ -25,8 +26,8 @@ class Anime(DatabaseConnector):
         return super().register_item(self.__dict__, self.table_name)
 
     @classmethod
-    def update_item(cls, item_id, payload):
-        if payload["anime"]:
+    def update_item(cls, item_id, payload:dict):
+        if payload.get("anime"):
             payload["anime"] = payload["anime"].title()
         return super().update_item(item_id, payload, cls.table_name)
 
